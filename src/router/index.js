@@ -25,6 +25,7 @@ const routes = [
     {
         path: '/cart',
         component: Cart,
+
     },
     {
         path: '/profile',
