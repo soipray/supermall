@@ -1,5 +1,5 @@
 <template>
-  <div class="goods-item ">
+  <div class="goods-item" @click="itemClick">
     <img :src="goodsItem.show.img" alt="" @load="imageLoad">
     <div class="goods-info">
       <p>{{goodsItem.title}}</p>
@@ -21,8 +21,11 @@
             }
         },
         methods: {
-            imageLoad(){
+            imageLoad() {
                 this.$bus.$emit('itemImageLoad')
+            },
+            itemClick() {
+                this.$router.push('/detail/' + this.goodsItem.iid)
             }
         }
     }
@@ -38,7 +41,7 @@
   .goods-item img {
     width: 100%;
     border-radius: 5px;
-    //border: 3px solid var(--color-tint);
+    /*border: 3 px solid var(--color-tint);*/
   }
 
   .goods-info {

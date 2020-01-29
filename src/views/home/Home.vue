@@ -66,7 +66,8 @@
                 currentType: 'pop',
                 isShowBackTop: false,
                 tabOffsetTop: 0,
-                isTabFixed: false
+                isTabFixed: false,
+                saveY: 0
             };
         },
         computed: {
@@ -82,6 +83,18 @@
             this.getHomeGoods('pop')
             this.getHomeGoods('new')
             this.getHomeGoods('sell')
+        },
+        destroyed(){
+            console.log('home destroyed');
+        },
+        activated(){
+            console.log('home activated',this.saveY);
+            this.$refs.scroll.refresh()
+            this.$refs.scroll.scrollTo(0,this.saveY,0)
+        },
+        deactivated(){
+            this.saveY = this.$refs.scroll.getScrollY()
+            console.log('home deactivated',this.saveY);
         },
         mounted() {
             //
