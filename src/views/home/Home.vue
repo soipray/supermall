@@ -23,7 +23,7 @@
                    ref="tabControl2"/>
       <goods-list :goods="showGood"/>
     </scroll>
-    <back-top @click.native="backClick" v-show="isShowBackTop"/>
+    <back-top @click.native="backTop" v-show="isShowBackTop"/>
   </div>
 </template>
 
@@ -36,11 +36,9 @@
     import TabControl from "components/content/tabControl/TabControl"
     import GoodsList from "components/content/goods/GoodsList";
     import Scroll from "components/common/scroll/Scroll";
-    import BackTop from "components/content/backTop/BackTop";
 
     import {getHomeMultidata, getHomeGoods} from "network/home";
-    import {debounce} from "common/utils";
-
+    import {itemListenerMixin , backTopMixin} from "common/mixin";
 
     export default {
         name: "Home",
@@ -52,8 +50,8 @@
             TabControl,
             GoodsList,
             Scroll,
-            BackTop
         },
+        mixins: [itemListenerMixin , backTopMixin],
         data() {
             return {
                 banners: [],
@@ -64,10 +62,9 @@
                     'sell': {page: 0, list: []}
                 },
                 currentType: 'pop',
-                isShowBackTop: false,
                 tabOffsetTop: 0,
                 isTabFixed: false,
-                saveY: 0
+                saveY: 0,
             };
         },
         computed: {
@@ -85,29 +82,21 @@
             this.getHomeGoods('sell')
         },
         destroyed(){
-            console.log('home destroyed');
         },
         activated(){
-            console.log('home activated',this.saveY);
             this.$refs.scroll.refresh()
             this.$refs.scroll.scrollTo(0,this.saveY,0)
         },
         deactivated(){
             this.saveY = this.$refs.scroll.getScrollY()
-            console.log('home deactivated',this.saveY);
+            this.$bus.$off('itemImageLoad',this.itemImgListener)
         },
         mounted() {
-            //
-            //1.监听item中图片加载完成
-            const refresh = debounce(this.$refs.scroll.refresh, 50)
-            this.$bus.$on('itemImageLoad', () => {
-                refresh()
-            })
+            this.tabClick(0)
         },
         methods: {
             /*事件监听*/
             tabClick(index) {
-                //console.log(index)
                 switch (index) {
                     case 0:
                         this.currentType = 'pop'
@@ -122,12 +111,9 @@
                 this.$refs.tabControl1.currentIndex = index
                 this.$refs.tabControl2.currentIndex = index
             },
-            backClick() {
-                this.$refs.scroll.scrollTo(0, 0)
-            },
             contentScroll(position) {
                 //1.判断backTop是否显示
-                this.isShowBackTop = (-position.y) > 1000
+                this.listenShowBackTop(position)
 
                 //2.决定tabControl是否吸顶
                 this.isTabFixed = (-position.y) > this.tabOffsetTop
@@ -148,7 +134,6 @@
             getHomeGoods(type) {
                 const page = this.goods[type].page + 1
                 getHomeGoods(type, page).then(res => {
-                    console.log(1, type, page, res);
                     this.goods[type].list.push(...res.data.list)
                     this.goods[type].page += 1
                 });

@@ -8,20 +8,25 @@
     </div>
     <div class="info-key">{{detailInfo.detailImage[0].key}}</div>
     <div class="info-list">
-      <img v-for="(item, index) in detailInfo.detailImage[0].list" :src="item" alt="">
+      <img v-for="(item, index) in detailInfo.detailImage[0].list" :src="item" alt="" @load="imageLoad">
     </div>
   </div>
 </template>
 
 <script>
-	export default {
-		name: "DetailGoodsInfo",
-    props: {
-      detailInfo: {
-        type: Object
-      }
+    export default {
+        name: "DetailGoodsInfo",
+        props: {
+            detailInfo: {
+                type: Object
+            }
+        },
+        methods: {
+            imageLoad() {
+                this.$emit('detailImageLoad')
+            }
+        }
     }
-	}
 </script>
 
 <style scoped>
