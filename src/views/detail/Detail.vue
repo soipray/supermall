@@ -29,8 +29,11 @@
     import GoodsList from "components/content/goods/GoodsList";
 
     import {getDetail, Goods, Shop, GoodsParam, getRecommend} from "network/detail";
-    import {itemListenerMixin , backTopMixin} from "common/mixin";
+    import {itemListenerMixin, backTopMixin} from "common/mixin";
     import {debounce} from "../../common/utils";
+
+    import {mapGetters} from 'vuex'
+    import {mapActions} from 'vuex'
 
     export default {
         name: "Detail",
@@ -46,7 +49,7 @@
             Scroll,
             GoodsList
         },
-        mixins: [itemListenerMixin , backTopMixin],
+        mixins: [itemListenerMixin, backTopMixin],
         data() {
             return {
                 iid: null,
@@ -118,6 +121,9 @@
             this.$bus.$off('itemImageLoad', this.itemImgListener)
         },
         methods: {
+            ...mapActions({
+                add: 'addCart'
+            }),
             imageLoad() {
                 this.newRefresh()
 
@@ -130,7 +136,7 @@
                 const y = -position.y
                 let length = this.themeTopYs.length
 
-                for (let i = 0; i < length - 1 ; i++) {
+                for (let i = 0; i < length - 1; i++) {
                     if (this.currentIndex != i && (y >= this.themeTopYs[i] && y < this.themeTopYs[i + 1])) {
                         this.currentIndex = i
                         this.$refs.nav.currentIndex = this.currentIndex
@@ -139,15 +145,22 @@
 
                 this.listenShowBackTop(position)
             },
-            addToCart(){
-                const product = {iid:111}
+            addToCart() {
+                const product = {iid: 111}
                 product.image = this.topImages[0]
                 product.title = this.goods.title
                 product.desc = this.goods.desc
                 product.price = this.goods.realPrice
                 product.iid = this.iid
 
-                this.$store.dispatch('addCart',product)
+                // this.$store.dispatch('addCart',product).then(res => {
+                //     console.log(res);
+                // })
+
+                this.add(product).then(res => {
+                    console.log(this.$toast);
+                    this.$toast.show(res)
+                })
             }
         }
     }
